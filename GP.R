@@ -46,7 +46,7 @@ LVCR=function(t,y,p){
   
   return(list(c(dHdt,dPdt)))
 }
-
+#sim 1
 times=0:100#timestep 0.1
 y0=c(25,5)
 params=c(0.5,0.02,0.1,0.2)
@@ -58,5 +58,55 @@ ggplot(out,aes(x=time,y=herb))+
   geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
   theme_classic()+ylab('species')
 
+#sim2 double predator population
+times=0:100#timestep 0.1
+y0=c(25,10)
+params=c(0.5,0.02,0.1,0.2)
+sim=ode(y=y0,times=times,func=LVCR,parms=params)
+out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
+
+ggplot(out,aes(x=time,y=herb))+
+  geom_line()+theme_classic()+
+  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
+  theme_classic()+ylab('species')
+
+#sim3 double prey population
+times=0:100#timestep 0.1
+y0=c(50,5)
+params=c(0.5,0.02,0.1,0.2)
+sim=ode(y=y0,times=times,func=LVCR,parms=params)
+out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
+
+ggplot(out,aes(x=time,y=herb))+
+  geom_line()+theme_classic()+
+  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
+  theme_classic()+ylab('species')
 
 
+####number 2######
+RMA=function(t,y,p){
+  H=y[1]#herbavor population
+  P=y[2]#predator population
+  
+  b=p[1]#prey birth rate
+  a=p[2]#predator attack rate
+  e=p[3]#conversion efficeiency of prey to predtors
+  s=p[4]#predator death rat3
+  w=p[5]
+  d=p[6]
+  dHdt=b*H*(1-a*H)-w*(H/d+H)*P
+  dPdt=e*w*(H/d+H)*P-s*P
+  
+  return(list(c(dHdt,dPdt)))
+}
+#sim 1
+times=0:100#timestep 0.1
+y0=c(500,120)
+params=c(0.8,0.001,0.07,0.2,5,400)
+sim=ode(y=y0,times=times,func=LVCR,parms=params)
+out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
+
+ggplot(out,aes(x=time,y=herb))+
+  geom_line()+theme_classic()+
+  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
+  theme_classic()+ylab('species')
