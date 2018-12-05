@@ -84,29 +84,40 @@ ggplot(out,aes(x=time,y=herb))+
 
 
 ####number 2######
-RMA=function(t,y,p){
-  H=y[1]#herbavor population
-  P=y[2]#predator population
+RMmodel=function(t,y,p){
+  #state variables
+  H=y[1] #herbivore population
+  P=y[2] #predator population 
   
-  b=p[1]#prey birth rate
-  a=p[2]#predator attack rate
-  e=p[3]#conversion efficeiency of prey to predtors
-  s=p[4]#predator death rat3
-  w=p[5]#self-limiting factor
-  d=p[6]#prey density
-  dHdt=(b*H*(1-a*H))-(w*(H/d+H)*P)
-  dPdt=(e*w*(H/d+H)*P)-s*P
+  #parameters
+  b=p[1] 
+  e=p[2] 
+  s=p[3] 
+  w=p[4]
+  d=p[5]
+  alpha=p[6]
   
-  return(list(c(dHdt,dPdt)))
+  # calculate change in state variables with time, given parameter values and current value of state variables
+  dHdt=(b*H*(1-alpha*H))-(w*(H/(d+H))*P)
+  dPdt=(e*w*(H/(d+H))*P)-s*P
+  # return list containing change in state variables with time
+  return(list(c(dHdt, dPdt)))
 }
-#sim 1
-times=0:300#timestep 0.1
-y0=c(500,120)
-params=c(0.8,0.001,0.07,0.2,5,400)
-sim=ode(y=y0,times=times,func=RMA,parms=params)
-out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
 
-ggplot(out,aes(x=time,y=herb))+
-  geom_line()+theme_classic()+
-  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
-  theme_classic()+ylab('species')
+# Scenario 1
+### Define parameters, initial values for state variables, and time steps
+# params=c(b, e, s, w, d, alpha)
+params=c(0.8, 0.07, 0.2, 5, 400, 0.001)
+# inits=c(H, P)
+inits=c(500,120)
+# times=sequence of time steps
+times=seq(from=1, to=300, by = 1)
+### Simulate the model using ode()
+modelSim=ode(y=inits,times=times,func=RMmodel,parms=params)
+modelDF=melt(data.frame(time=modelSim[,1], H=modelSim[,2], P=modelSim[,3]), id.vars = "time", variable.name = "population", value.name = "density")
+
+a=ggplot(modelDF, aes(x=time, y=density, group=population))+
+  geom_line(aes(color=population))+
+  theme_classic()+ylab("population density")
+a
+
