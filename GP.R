@@ -92,18 +92,18 @@ RMA=function(t,y,p){
   a=p[2]#predator attack rate
   e=p[3]#conversion efficeiency of prey to predtors
   s=p[4]#predator death rat3
-  w=p[5]
-  d=p[6]
-  dHdt=b*H*(1-a*H)-w*(H/d+H)*P
-  dPdt=e*w*(H/d+H)*P-s*P
+  w=p[5]#self-limiting factor
+  d=p[6]#prey density
+  dHdt=(b*H*(1-a*H))-(w*(H/d+H)*P)
+  dPdt=(e*w*(H/d+H)*P)-s*P
   
   return(list(c(dHdt,dPdt)))
 }
 #sim 1
-times=0:100#timestep 0.1
+times=0:300#timestep 0.1
 y0=c(500,120)
 params=c(0.8,0.001,0.07,0.2,5,400)
-sim=ode(y=y0,times=times,func=LVCR,parms=params)
+sim=ode(y=y0,times=times,func=RMA,parms=params)
 out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
 
 ggplot(out,aes(x=time,y=herb))+
