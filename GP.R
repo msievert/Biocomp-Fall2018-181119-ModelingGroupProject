@@ -1,60 +1,41 @@
 rm(list=ls())
-##Mac
+#packages needed to run code
 library(deSolve)
 library(ggplot2)
-
+library(reshape2)
 #define lotka-volterra competition model simulation
 LVCR=function(t,y,p){
+  #state variables
   H=y[1]# herbavor population
   P=y[2]# predator population
   
+  #parameters
   b=p[1]# prey birth rate
   a=p[2]# predator attack rate
   e=p[3]# conversion efficeiency of prey to predtors
-  s=p[4]# predator death rat3
+  s=p[4]# predator death rate
   
+  #calculate change in state variables with time
   dHdt=b*H-a*P*H
   dPdt=e*a*P*H-s*P
-  
+  #return changes in state variable with change in time
   return(list(c(dHdt,dPdt)))
 }
-#sim 1
-times=0:100#timestep 0.1
+#simulation 1 with parameters from project instructions
+#times=sequence of time steps
+times=seq(from=0, to=100, by=1)
+#initial populations y0=c(H,P)
 y0=c(25,5)
 # params=c(b,a,e,s)
 params=c(0.5,0.02,0.1,0.2)
+#simulate model using ode
 sim=ode(y=y0,times=times,func=LVCR,parms=params)
 out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
-
+#plot model
 ggplot(out,aes(x=time,y=herb))+
   geom_line()+theme_classic()+
   geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
   theme_classic()+ylab('Species Population')
-
-#sim2 double predator population
-times=0:100#timestep 0.1
-y0=c(25,10)
-params=c(0.5,0.02,0.1,0.2)
-sim=ode(y=y0,times=times,func=LVCR,parms=params)
-out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
-
-ggplot(out,aes(x=time,y=herb))+
-  geom_line()+theme_classic()+
-  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
-  theme_classic()+ylab('species')
-
-#sim3 double prey population
-times=0:100#timestep 0.1
-y0=c(50,5)
-params=c(0.5,0.02,0.1,0.2)
-sim=ode(y=y0,times=times,func=LVCR,parms=params)
-out=data.frame(time=sim[,1],herb=sim[,2],pred=sim[,3])
-
-ggplot(out,aes(x=time,y=herb))+
-  geom_line()+theme_classic()+
-  geom_line(data=out,mapping=aes(x=time,y=pred),color='green')+
-  theme_classic()+ylab('Species Population')
-
 
 ####number 2######
 RMmodel=function(t,y,p){
